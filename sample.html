@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hotel Royal - Interactive Menu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B4513;
+            --primary-dark: #5a2d0b;
+            --secondary: #F5F5DC;
+            --accent: #D4AF37;
+            --accent-light: #e8c874;
+            --text: #333;
+            --text-light: #666;
+            --light: #FFF;
+            --bg-gradient: linear-gradient(135deg, #f9f5f0 0%, #e8e0d5 100%);
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text);
+            touch-action: pan-y;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .menu-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .menu-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--light);
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+        }
+        
+        .menu-header h1 {
+            font-family: 'Dancing Script', cursive;
+            margin: 0;
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+            transform: rotate(-2deg);
+            margin-top: 10px;
+        }
+        
+        .menu-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: -5px;
+            opacity: 0.9;
+        }
+        
+        .hotel-logo {
+            width: 80px;
+            height: 80px;
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
+            transition: var(--transition);
+        }
+        
+        .hotel-logo:hover {
+            transform: rotate(15deg) scale(1.1);
+            box-shadow: 0 0 20px var(--accent);
+        }
+        
+        .menu-scroller {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            height: calc(100vh - 180px);
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover no-repeat;
+        }
+        
+        .menu-scroller::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.85);
+            z-index: 0;
+        }
+        
+        .menu-scroller::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .menu-section {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            padding: 2rem;
+            height: 100%;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+        
+        .menu-section.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.8rem;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.9);
+            z-index: 1;
+            padding-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .section-icon {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-left: 10px;
+        }
+        
+        .menu-item {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-bottom: 1px dashed #ddd;
+            background: rgba(255,255,255,0.8);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: var(--transition);
+            transform: translateX(-10px);
+            opacity: 0;
+            position: relative;
+        }
+        
+        .menu-section.active .menu-item {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .menu-item:nth-child(1) { transition-delay: 0.1s; }
+        .menu-item:nth-child(2) { transition-delay: 0.2s; }
+        .menu-item:nth-child(3) { transition-delay: 0.3s; }
+        .menu-item:nth-child(4) { transition-delay: 0.4s; }
+        .menu-item:nth-child(5) { transition-delay: 0.5s; }
+        
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            background: white;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            align-items: center;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            font-size: 1.2rem;
+            font-family: 'Playfair Display', serif;
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .item-name::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: var(--transition);
+        }
+        
+        .menu-item:hover .item-name::after {
+            width: 100%;
+        }
+        
+        .item-price {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.3rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            min-width: 80px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .item-desc {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+        
+        .item-allergens {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 0.5rem;
+        }
+        
+        .allergen {
+            font-size: 0.7rem;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: #888;
+        }
+        
+        /* Quantity Selector Styles */
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .quantity-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+        
+        .quantity-input {
+            width: 40px;
+            text-align: center;
+            margin: 0 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+            font-weight: bold;
+        }
+        
+        /* Order Summary Styles */
+        .order-summary-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .order-summary-btn:hover {
+            transform: scale(1.1);
+            background: var(--primary-dark);
+        }
+        
+        .order-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--accent);
+            color: var(--text);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .order-summary {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 350px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            z-index: 99;
+            transition: var(--transition);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .order-summary.active {
+            right: 0;
+        }
+        
+        .order-summary h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .order-items {
+            margin-bottom: 20px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .order-item-name {
+            flex: 1;
+        }
+        
+        .order-item-quantity {
+            width: 50px;
+            text-align: center;
+        }
+        
+        .order-item-price {
+            width: 80px;
+            text-align: right;
+        }
+        
+        .order-total {
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 2px solid var(--accent);
+        }
+        
+        .checkout-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-top: 20px;
+            width: 100%;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .checkout-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+        
+        .close-summary {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+        }
+        
+        .category-indicator {
+            display: flex;
+            justify-content: center;
+            padding: 1.2rem 0;
+            background: var(--secondary);
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc;
+            margin: 0 8px;
+            transition: var(--transition);
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .indicator-dot::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+        
+        .indicator-dot:hover::before {
+            border-color: var(--accent-light);
+        }
+        
+        .indicator-dot.active {
+            background: var(--primary);
+            transform: scale(1.3);
+        }
+        
+        .indicator-dot.active::before {
+            border-color: var(--accent);
+        }
+        
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            z-index: 3;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .menu-container:hover .nav-arrow {
+            opacity: 1;
+        }
+        
+        .nav-arrow:hover {
+            background: var(--primary-dark);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .nav-arrow.left {
+            left: 20px;
+        }
+        
+        .nav-arrow.right {
+            right: 20px;
+        }
+        
+        .menu-footer {
+            text-align: center;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+        
+        .signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-top: 5px;
+        }
+        
+        .vegetarian-mark {
+            color: #4CAF50;
+            margin-left: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .spicy-mark {
+            color: #F44336;
+            margin-left: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .seasonal-mark {
+            color: var(--accent);
+            margin-left: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .menu-highlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, rgba(255,255,255,0.7) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .menu-header h1 {
+                font-size: 2rem;
+                margin-left: 60px;
+            }
+            
+            .menu-subtitle {
+                font-size: 0.7rem;
+                margin-left: 60px;
+            }
+            
+            .hotel-logo {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .nav-arrow {
+                display: none;
+            }
+            
+            .menu-scroller {
+                height: calc(100vh - 160px);
+            }
+            
+            .menu-item {
+                padding: 1rem;
+            }
+            
+            .item-price {
+                font-size: 1.1rem;
+                min-width: 70px;
+            }
+            
+            .order-summary {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .order-summary.active {
+                right: 0;
+            }
+        }
+        
+        /* Animation for menu items */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Floating animation for logo */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(-2deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(-2deg); }
+        }
+        
+        .hotel-logo {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-container">
+        <div class="menu-header">
+            <img src="https://via.placeholder.com/150" alt="Hotel Royal Logo" class="hotel-logo">
+            <h1>Hotel Royal</h1>
+            <div class="menu-subtitle">Fine Dining Experience</div>
+        </div>
+        
+        <div class="menu-scroller" id="menuScroller">
+            <!-- Starters Section -->
+            <section class="menu-section" id="starters">
+                <h2 class="section-title">
+                    Starters
+                    <i class="fas fa-utensils section-icon"></i>
+                </h2>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Bruschetta al Pomodoro <span class="vegetarian-mark"><i class="fas fa-leaf"></i></span></span>
+                        <span class="item-price">$8.50</span>
+                    </div>
+                    <p class="item-desc">Toasted artisanal bread topped with vine-ripened tomatoes, fresh garlic, basil, and extra virgin olive oil</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Gluten</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Bruschetta al Pomodoro" data-price="8.50">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Bruschetta al Pomodoro" data-price="8.50">
+                        <button class="quantity-btn plus" data-item="Bruschetta al Pomodoro" data-price="8.50">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Truffle Arancini <span class="vegetarian-mark"><i class="fas fa-leaf"></i></span></span>
+                        <span class="item-price">$12.00</span>
+                    </div>
+                    <p class="item-desc">Crispy risotto balls with black truffle essence and melted mozzarella center, served with truffle aioli</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Dairy</span>
+                        <span class="allergen">Gluten</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Truffle Arancini" data-price="12.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Truffle Arancini" data-price="12.00">
+                        <button class="quantity-btn plus" data-item="Truffle Arancini" data-price="12.00">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Tuna Tartare</span>
+                        <span class="item-price">$14.50</span>
+                    </div>
+                    <p class="item-desc">Fresh sushi-grade tuna with avocado, sesame oil, soy reduction, and crispy wonton</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Fish</span>
+                        <span class="allergen">Soy</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Tuna Tartare" data-price="14.50">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Tuna Tartare" data-price="14.50">
+                        <button class="quantity-btn plus" data-item="Tuna Tartare" data-price="14.50">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Lobster Bisque</span>
+                        <span class="item-price">$16.00</span>
+                    </div>
+                    <p class="item-desc">Creamy bisque with Maine lobster, brandy, and a touch of sherry, served with lobster claw</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Shellfish</span>
+                        <span class="allergen">Dairy</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Lobster Bisque" data-price="16.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Lobster Bisque" data-price="16.00">
+                        <button class="quantity-btn plus" data-item="Lobster Bisque" data-price="16.00">+</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Main Courses Section -->
+            <section class="menu-section" id="mains">
+                <h2 class="section-title">
+                    Main Courses
+                    <i class="fas fa-drumstick-bite section-icon"></i>
+                </h2>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Filet Mignon</span>
+                        <span class="item-price">$42.00</span>
+                    </div>
+                    <p class="item-desc">8oz tender beef filet with red wine reduction, served with seasonal vegetables and truffle mashed potatoes</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Dairy</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Filet Mignon" data-price="42.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Filet Mignon" data-price="42.00">
+                        <button class="quantity-btn plus" data-item="Filet Mignon" data-price="42.00">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Grilled Salmon <span class="seasonal-mark"><i class="fas fa-fish"></i></span></span>
+                        <span class="item-price">$32.00</span>
+                    </div>
+                    <p class="item-desc">Fresh Atlantic salmon with lemon beurre blanc, asparagus and wild rice pilaf</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Fish</span>
+                        <span class="allergen">Dairy</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Grilled Salmon" data-price="32.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Grilled Salmon" data-price="32.00">
+                        <button class="quantity-btn plus" data-item="Grilled Salmon" data-price="32.00">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Duck Confit <span class="seasonal-mark"><i class="fas fa-feather-alt"></i></span></span>
+                        <span class="item-price">$36.00</span>
+                    </div>
+                    <p class="item-desc">Slow-cooked duck leg with cherry port sauce, roasted fingerling potatoes and haricots verts</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Duck Confit" data-price="36.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Duck Confit" data-price="36.00">
+                        <button class="quantity-btn plus" data-item="Duck Confit" data-price="36.00">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Mushroom Risotto <span class="vegetarian-mark"><i class="fas fa-leaf"></i></span></span>
+                        <span class="item-price">$26.00</span>
+                    </div>
+                    <p class="item-desc">Arborio rice with wild mushrooms, white truffle oil, and parmesan reggiano</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Dairy</span>
+                        <span class="allergen">Gluten</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Mushroom Risotto" data-price="26.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Mushroom Risotto" data-price="26.00">
+                        <button class="quantity-btn plus" data-item="Mushroom Risotto" data-price="26.00">+</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Beverages Section -->
+            <section class="menu-section" id="beverages">
+                <h2 class="section-title">
+                    Beverages
+                    <i class="fas fa-glass-martini-alt section-icon"></i>
+                </h2>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Signature Cocktails</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Tropical Sunset</span>
+                        <span class="item-price">$16.00</span>
+                    </div>
+                    <p class="item-desc">Premium rum, fresh mango puree, lime juice, and a splash of grenadine</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Tropical Sunset" data-price="16.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Tropical Sunset" data-price="16.00">
+                        <button class="quantity-btn plus" data-item="Tropical Sunset" data-price="16.00">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Classic Mojito</span>
+                        <span class="item-price">$14.00</span>
+                    </div>
+                    <p class="item-desc">Havana Club rum, fresh mint, lime juice, sugar and soda water</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Classic Mojito" data-price="14.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Classic Mojito" data-price="14.00">
+                        <button class="quantity-btn plus" data-item="Classic Mojito" data-price="14.00">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Wine Selection</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Château Margaux 2015</span>
+                        <span class="item-price">$25/glass</span>
+                    </div>
+                    <p class="item-desc">Bordeaux Premier Grand Cru Classé</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Château Margaux 2015" data-price="25.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Château Margaux 2015" data-price="25.00">
+                        <button class="quantity-btn plus" data-item="Château Margaux 2015" data-price="25.00">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Dom Pérignon 2010</span>
+                        <span class="item-price">$65/glass</span>
+                    </div>
+                    <p class="item-desc">Vintage Champagne</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Dom Pérignon 2010" data-price="65.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Dom Pérignon 2010" data-price="65.00">
+                        <button class="quantity-btn plus" data-item="Dom Pérignon 2010" data-price="65.00">+</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Desserts Section -->
+            <section class="menu-section" id="desserts">
+                <h2 class="section-title">
+                    Desserts
+                    <i class="fas fa-ice-cream section-icon"></i>
+                </h2>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Chocolate Soufflé <span class="vegetarian-mark"><i class="fas fa-leaf"></i></span></span>
+                        <span class="item-price">$14.00</span>
+                    </div>
+                    <p class="item-desc">Warm chocolate soufflé with vanilla bean ice cream and raspberry coulis</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Dairy</span>
+                        <span class="allergen">Eggs</span>
+                        <span class="allergen">Gluten</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Chocolate Soufflé" data-price="14.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Chocolate Soufflé" data-price="14.00">
+                        <button class="quantity-btn plus" data-item="Chocolate Soufflé" data-price="14.00">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Crème Brûlée <span class="vegetarian-mark"><i class="fas fa-leaf"></i></span></span>
+                        <span class="item-price">$12.00</span>
+                    </div>
+                    <p class="item-desc">Classic vanilla bean custard with caramelized sugar crust</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Dairy</span>
+                        <span class="allergen">Eggs</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Crème Brûlée" data-price="12.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Crème Brûlée" data-price="12.00">
+                        <button class="quantity-btn plus" data-item="Crème Brûlée" data-price="12.00">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Seasonal Fruit Tart <span class="vegetarian-mark"><i class="fas fa-leaf"></i> <span class="seasonal-mark"><i class="fas fa-seedling"></i></span></span>
+                        <span class="item-price">$11.00</span>
+                    </div>
+                    <p class="item-desc">Buttery pastry with pastry cream and fresh seasonal fruits</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Dairy</span>
+                        <span class="allergen">Gluten</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Seasonal Fruit Tart" data-price="11.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Seasonal Fruit Tart" data-price="11.00">
+                        <button class="quantity-btn plus" data-item="Seasonal Fruit Tart" data-price="11.00">+</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Chef's Specials Section -->
+            <section class="menu-section" id="specials">
+                <h2 class="section-title">
+                    Chef's Specials
+                    <i class="fas fa-star section-icon"></i>
+                </h2>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Lobster Thermidor</span>
+                        <span class="item-price">$52.00</span>
+                    </div>
+                    <p class="item-desc">Fresh Maine lobster baked with creamy mushroom sauce, gruyère cheese, and herb breadcrumbs</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Shellfish</span>
+                        <span class="allergen">Dairy</span>
+                        <span class="allergen">Gluten</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Lobster Thermidor" data-price="52.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Lobster Thermidor" data-price="52.00">
+                        <button class="quantity-btn plus" data-item="Lobster Thermidor" data-price="52.00">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Wagyu Beef Tenderloin</span>
+                        <span class="item-price">$68.00</span>
+                    </div>
+                    <p class="item-desc">Japanese A5 Wagyu, 6oz with truffle demi-glace, roasted garlic mashed potatoes</p>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Wagyu Beef Tenderloin" data-price="68.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Wagyu Beef Tenderloin" data-price="68.00">
+                        <button class="quantity-btn plus" data-item="Wagyu Beef Tenderloin" data-price="68.00">+</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-header">
+                        <span class="item-name">Truffle Pasta <span class="vegetarian-mark"><i class="fas fa-leaf"></i></span></span>
+                        <span class="item-price">$38.00</span>
+                    </div>
+                    <p class="item-desc">Handmade tagliatelle with black winter truffle, parmesan cream sauce</p>
+                    <div class="item-allergens">
+                        <span class="allergen">Dairy</span>
+                        <span class="allergen">Gluten</span>
+                    </div>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn minus" data-item="Truffle Pasta" data-price="38.00">-</button>
+                        <input type="number" class="quantity-input" value="0" min="0" max="10" data-item="Truffle Pasta" data-price="38.00">
+                        <button class="quantity-btn plus" data-item="Truffle Pasta" data-price="38.00">+</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <div class="category-indicator">
+            <div class="indicator-dot active" data-section="0"></div>
+            <div class="indicator-dot" data-section="1"></div>
+            <div class="indicator-dot" data-section="2"></div>
+            <div class="indicator-dot" data-section="3"></div>
+            <div class="indicator-dot" data-section="4"></div>
+        </div>
+        
+        <div class="nav-arrow left" id="prevBtn"><i class="fas fa-chevron-left"></i></div>
+        <div class="nav-arrow right" id="nextBtn"><i class="fas fa-chevron-right"></i></div>
+        
+        <div class="menu-footer">
+            <div>All our ingredients are sourced from local farms when possible</div>
+            <div class="signature">Chef Antoine Beauvilliers</div>
+        </div>
+    </div>
+
+    <!-- Order Summary Button -->
+    <div class="order-summary-btn" id="orderSummaryBtn">
+        <i class="fas fa-shopping-bag"></i>
+        <div class="order-badge" id="orderBadge">0</div>
+    </div>
+
+    <!-- Order Summary Panel -->
+    <div class="order-summary" id="orderSummary">
+        <span class="close-summary" id="closeSummary">&times;</span>
+        <h3>Your Order</h3>
+        <div class="order-items" id="orderItems">
+            <!-- Order items will be added here dynamically -->
+            <p style="text-align: center; color: #888;">Your order is empty</p>
+        </div>
+        <div class="order-total" id="orderTotal">
+            Total: $0.00
+        </div>
+        <button class="checkout-btn" id="checkoutBtn">Place Order</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const scroller = document.getElementById('menuScroller');
+            const dots = document.querySelectorAll('.indicator-dot');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const sections = document.querySelectorAll('.menu-section');
+            const orderSummaryBtn = document.getElementById('orderSummaryBtn');
+            const orderSummary = document.getElementById('orderSummary');
+            const closeSummary = document.getElementById('closeSummary');
+            const orderItems = document.getElementById('orderItems');
+            const orderTotal = document.getElementById('orderTotal');
+            const orderBadge = document.getElementById('orderBadge');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            
+            let currentIndex = 0;
+            let isScrolling = false;
+            let scrollTimeout;
+            let order = {};
+            
+            // Initialize sections
+            sections[0].classList.add('active');
+            
+            // Initialize Hammer.js for touch gestures
+            const hammer = new Hammer(scroller);
+            hammer.on('swipeleft', function() {
+                navigateTo(currentIndex + 1);
+            });
+            
+            hammer.on('swiperight', function() {
+                navigateTo(currentIndex - 1);
+            });
+            
+            // Update indicator dots and active section based on scroll position
+            scroller.addEventListener('scroll', function() {
+                if (isScrolling) return;
+                
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    const scrollLeft = scroller.scrollLeft;
+                    const sectionWidth = scroller.clientWidth;
+                    const newIndex = Math.round(scrollLeft / sectionWidth);
+                    
+                    if (newIndex !== currentIndex) {
+                        currentIndex = newIndex;
+                        updateIndicator();
+                        setActiveSection();
+                    }
+                }, 100);
+            });
+            
+            // Click handlers for indicator dots
+            dots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const sectionIndex = parseInt(this.getAttribute('data-section'));
+                    navigateTo(sectionIndex);
+                });
+            });
+            
+            // Navigation buttons
+            prevBtn.addEventListener('click', function() {
+                navigateTo(currentIndex - 1);
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                navigateTo(currentIndex + 1);
+            });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowLeft') {
+                    navigateTo(currentIndex - 1);
+                } else if (e.key === 'ArrowRight') {
+                    navigateTo(currentIndex + 1);
+                }
+            });
+            
+            // Quantity button handlers
+            document.querySelectorAll('.quantity-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const itemName = this.getAttribute('data-item');
+                    const itemPrice = parseFloat(this.getAttribute('data-price'));
+                    const input = this.parentElement.querySelector('.quantity-input');
+                    let quantity = parseInt(input.value);
+                    
+                    if (this.classList.contains('plus')) {
+                        quantity = Math.min(quantity + 1, 10);
+                    } else {
+                        quantity = Math.max(quantity - 1, 0);
+                    }
+                    
+                    input.value = quantity;
+                    
+                    // Update order
+                    if (quantity > 0) {
+                        order[itemName] = {
+                            price: itemPrice,
+                            quantity: quantity
+                        };
+                    } else {
+                        delete order[itemName];
+                    }
+                    
+                    updateOrderSummary();
+                });
+            });
+            
+            // Quantity input handlers
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    const itemName = this.getAttribute('data-item');
+                    const itemPrice = parseFloat(this.getAttribute('data-price'));
+                    let quantity = parseInt(this.value);
+                    
+                    // Validate input
+                    if (isNaN(quantity) || quantity < 0) {
+                        quantity = 0;
+                        this.value = 0;
+                    } else if (quantity > 10) {
+                        quantity = 10;
+                        this.value = 10;
+                    }
+                    
+                    // Update order
+                    if (quantity > 0) {
+                        order[itemName] = {
+                            price: itemPrice,
+                            quantity: quantity
+                        };
+                    } else {
+                        delete order[itemName];
+                    }
+                    
+                    updateOrderSummary();
+                });
+            });
+            
+            // Order summary toggle
+            orderSummaryBtn.addEventListener('click', function() {
+                orderSummary.classList.toggle('active');
+            });
+            
+            closeSummary.addEventListener('click', function() {
+                orderSummary.classList.remove('active');
+            });
+            
+            // Checkout button
+            checkoutBtn.addEventListener('click', function() {
+                if (Object.keys(order).length === 0) {
+                    alert('Please add items to your order first.');
+                    return;
+                }
+                
+                // In a real app, this would send the order to the server
+                alert('Order placed successfully! Thank you for dining with us.');
+                
+                // Reset order
+                order = {};
+                document.querySelectorAll('.quantity-input').forEach(input => {
+                    input.value = 0;
+                });
+                updateOrderSummary();
+                orderSummary.classList.remove('active');
+            });
+            
+            function navigateTo(index) {
+                // Boundary checking
+                if (index < 0) index = 0;
+                if (index >= sections.length) index = sections.length - 1;
+                
+                currentIndex = index;
+                const sectionWidth = scroller.clientWidth;
+                
+                isScrolling = true;
+                scroller.scrollTo({
+                    left: sectionWidth * index,
+                    behavior: 'smooth'
+                });
+                
+                setTimeout(() => {
+                    isScrolling = false;
+                }, 500);
+                
+                updateIndicator();
+                setActiveSection();
+            }
+            
+            function updateIndicator() {
+                dots.forEach((dot, index) => {
+                    if (index === currentIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            
+            function setActiveSection() {
+                sections.forEach((section, index) => {
+                    if (index === currentIndex) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+            }
+            
+            function updateOrderSummary() {
+                // Update order items
+                if (Object.keys(order).length === 0) {
+                    orderItems.innerHTML = '<p style="text-align: center; color: #888;">Your order is empty</p>';
+                } else {
+                    orderItems.innerHTML = '';
+                    let total = 0;
+                    let itemCount = 0;
+                    
+                    for (const [itemName, item] of Object.entries(order)) {
+                        const itemTotal = item.price * item.quantity;
+                        total += itemTotal;
+                        itemCount += item.quantity;
+                        
+                        const orderItem = document.createElement('div');
+                        orderItem.className = 'order-item';
+                        orderItem.innerHTML = `
+                            <div class="order-item-name">${itemName}</div>
+                            <div class="order-item-quantity">x${item.quantity}</div>
+                            <div class="order-item-price">$${itemTotal.toFixed(2)}</div>
+                        `;
+                        orderItems.appendChild(orderItem);
+                    }
+                    
+                    // Update total
+                    orderTotal.textContent = `Total: $${total.toFixed(2)}`;
+                    
+                    // Update badge
+                    orderBadge.textContent = itemCount;
+                    orderBadge.style.display = itemCount > 0 ? 'flex' : 'none';
+                }
+            }
+            
+            // Parallax effect for background
+            scroller.addEventListener('scroll', function() {
+                const scrollPosition = scroller.scrollLeft / (scroller.scrollWidth - scroller.clientWidth);
+                const bgPosition = scrollPosition * 20;
+                scroller.style.backgroundPosition = `${bgPosition}% center`;
+            });
+            
+            // Initialize first section items with animation
+            setTimeout(() => {
+                const firstSectionItems = document.querySelectorAll('.menu-section.active .menu-item');
+                firstSectionItems.forEach(item => {
+                    item.style.animation = 'fadeInUp 0.6s forwards';
+                });
+            }, 300);
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
